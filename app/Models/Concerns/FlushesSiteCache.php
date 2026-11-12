@@ -20,6 +20,9 @@ trait FlushesSiteCache
             SiteData::flush();
             Cache::forget('home_page_v2');
             Cache::forget('sidebar_popular');
+            foreach (['sitemap_index', 'sitemap_categories', 'sitemap_blog', 'sitemap_pages', 'sitemap_items_1'] as $key) {
+                Cache::forget($key);
+            }
         };
 
         static::saved($flush);

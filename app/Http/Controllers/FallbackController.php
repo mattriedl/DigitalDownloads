@@ -11,18 +11,6 @@ class FallbackController extends Controller
 {
     public function __invoke(Request $request): Response
     {
-        $redirect = Redirect::where('from_path', Redirect::normalizePath('/'.$request->path()))->first();
-
-        if (! $redirect) {
-            abort(404);
-        }
-
-        $redirect->increment('hits');
-
-        if ($redirect->status_code === 410) {
-            abort(410);
-        }
-
-        return redirect()->to($redirect->to_url, $redirect->status_code === 302 ? 302 : 301);
+        return Redirect::responseFor($request->path()) ?? abort(404);
     }
 }

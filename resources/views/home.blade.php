@@ -1,4 +1,35 @@
 <x-layout>
+    <x-slot:head>
+        @php
+            $siteUrl = rtrim(url('/'), '/');
+            $schema = [
+                '@context' => 'https://schema.org',
+                '@graph' => array_values(array_filter([
+                    [
+                        '@type' => 'WebSite',
+                        '@id' => $siteUrl.'/#website',
+                        'url' => $siteUrl.'/',
+                        'name' => setting('site_name', config('app.name')),
+                        'description' => setting('seo_home_description') ?: setting('site_tagline'),
+                        'publisher' => ['@id' => $siteUrl.'/#organization'],
+                        'potentialAction' => [
+                            '@type' => 'SearchAction',
+                            'target' => ['@type' => 'EntryPoint', 'urlTemplate' => route('search').'?q={search_term_string}'],
+                            'query-input' => 'required name=search_term_string',
+                        ],
+                    ],
+                    array_filter([
+                        '@type' => 'Organization',
+                        '@id' => $siteUrl.'/#organization',
+                        'name' => setting('site_name', config('app.name')),
+                        'url' => $siteUrl.'/',
+                        'logo' => setting('logo') ? asset('storage/'.setting('logo')) : null,
+                    ]),
+                ])),
+            ];
+        @endphp
+        <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+    </x-slot:head>
     <h1 class="sr-only">{{ setting('site_name') }}: {{ setting('site_tagline') }}</h1>
 
     @if ($featured->isNotEmpty())

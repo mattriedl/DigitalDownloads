@@ -115,7 +115,7 @@ cat > "$VHOST" <<APACHE
     CustomLog \${APACHE_LOG_DIR}/dd-$DOMAIN-access.log combined
 </VirtualHost>
 APACHE
-a2enmod rewrite headers >/dev/null
+a2enmod rewrite headers expires deflate >/dev/null
 a2ensite "dd-$DOMAIN" >/dev/null
 apachectl configtest
 systemctl reload apache2

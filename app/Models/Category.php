@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\FlushesSiteCache;
+use App\Models\Concerns\HasPublicUrl;
 use App\Models\Concerns\HasSlug;
 use App\Models\Concerns\RecordsAdminActivity;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,7 +14,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
-    use FlushesSiteCache, HasFactory, HasSlug, RecordsAdminActivity;
+    use FlushesSiteCache, HasFactory, HasPublicUrl, HasSlug, RecordsAdminActivity;
+
+    protected static string $publicPrefix = '/category/';
 
     protected $guarded = ['id', 'items_count'];
 

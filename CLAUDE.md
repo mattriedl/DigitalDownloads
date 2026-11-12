@@ -22,3 +22,8 @@ a setting (`App\Support\Settings`, `setting('key')`) or database content.
 - Cached model data (homepage, nav) needs its class in `config/cache.php`
   `serializable_classes`; bump the cache key (`home_page_v2`) when its shape changes.
 - `<x-icon>` belongs to blade-icons (Filament); site icons are `<x-ui-icon>`.
+- Public models (Item, Category, Post, Page) use `HasPublicUrl`: a slug change writes a 301
+  `Redirect` and publishing queues an IndexNow ping (only sent when `APP_ENV=production`).
+  Old slugs on bound routes reach the redirect via the 404 handler in `bootstrap/app.php`.
+- Uploaded images are shown through `Images::url($path, $width)` (WebP copies in
+  `storage/app/public/resized`); `robots.txt` and the sitemaps are routes, not files in `public/`.

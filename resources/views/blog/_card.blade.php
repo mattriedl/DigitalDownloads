@@ -1,6 +1,6 @@
 <article class="group relative overflow-hidden rounded-lg border border-rule bg-surface hover:border-brand">
     @if ($post->image)
-        <img src="{{ asset('storage/'.$post->image) }}" alt="" loading="lazy" class="aspect-[16/9] w-full object-cover">
+        <img src="{{ \App\Support\Images::url($post->image, 800) }}" alt="" loading="lazy" decoding="async" width="800" height="450" class="aspect-[16/9] w-full object-cover">
     @endif
     <div class="p-4">
         <h3 class="font-display text-lg font-semibold leading-snug">

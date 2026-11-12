@@ -27,7 +27,10 @@ class BrowseController extends Controller
 
     public function tag(Tag $tag): View
     {
-        return $this->list(ucfirst($tag->name).' downloads', null, Item::published()->whereHas('tags', fn ($q) => $q->whereKey($tag->id))->popular());
+        $query = Item::published()->whereHas('tags', fn ($q) => $q->whereKey($tag->id))->popular();
+
+        // Tag pages with only a couple of items are thin content: keep them out of search results.
+        return $this->list(ucfirst($tag->name).' downloads', null, $query, noindex: (clone $query)->count() < 3);
     }
 
     public function search(Request $request): View
@@ -42,10 +45,12 @@ class BrowseController extends Controller
         return view('browse.search', ['q' => $q, 'items' => $items]);
     }
 
-    private function list(string $title, ?string $intro, $query, bool $ranked = false): View
+    private function list(string $title, ?string $intro, $query, bool $ranked = false, bool $noindex = false): View
     {
         $items = $query->with('category')->paginate((int) setting('items_per_page', 24));
+        // Page 2+ of a list stays crawlable but is not a search landing page.
+        $noindex = $noindex || $items->currentPage() > 1;
 
-        return view('browse.list', compact('title', 'intro', 'items', 'ranked'));
+        return view('browse.list', compact('title', 'intro', 'items', 'ranked', 'noindex'));
     }
 }

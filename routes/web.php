@@ -14,6 +14,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SeoController;
 use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
@@ -71,6 +72,13 @@ Route::post('/contact', [ContactController::class, 'store'])->middleware('thrott
 // Ads
 Route::get('/ads/{ad}/click', [AdController::class, 'click'])->middleware('throttle:60,1')->name('ads.click');
 Route::get('/ads.txt', [AdController::class, 'adsTxt'])->name('ads.txt');
+
+// Search engines
+Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
+Route::get('/sitemap.xml', [SeoController::class, 'index'])->name('sitemap.index');
+Route::get('/sitemaps/items-{page}.xml', [SeoController::class, 'items'])->whereNumber('page')->name('sitemap.items');
+Route::get('/sitemaps/{section}.xml', [SeoController::class, 'section'])->whereIn('section', ['categories', 'blog', 'pages'])->name('sitemap.section');
+Route::get('/{key}.txt', [SeoController::class, 'indexNowKey'])->where('key', '[a-f0-9]{32}')->name('indexnow.key');
 
 // Unknown URLs: admin-defined redirects first, then a 404 page
 Route::fallback(FallbackController::class);

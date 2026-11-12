@@ -1,4 +1,4 @@
-<x-layout :title="$title" :description="$intro">
+<x-layout :title="$title" :description="$intro" :noindex="$noindex ?? false">
     @include('partials.breadcrumbs', ['crumbs' => [$title => null]])
     <h1 class="font-display text-3xl font-bold">{{ $title }}</h1>
     @if ($intro)<p class="mt-1 text-muted">{{ $intro }}</p>@endif

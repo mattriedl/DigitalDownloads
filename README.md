@@ -21,7 +21,7 @@ Stack: Laravel 13, PHP 8.3+ (server runs 8.5), MySQL 8, Blade + Tailwind, Vite.
 | 5 | Accounts, Google sign-in, reviews/comments, dead-link checker, virus scanning | Done |
 | 6 | Advertising: BannerPromote in every zone, ad stats | Done |
 | 7 | Support tickets, Turnstile/reCAPTCHA, SMS alerts | Done |
-| 8 | SEO and performance | Next |
+| 8 | Sitemaps, robots.txt, IndexNow, slug redirects, schema, WebP thumbnails, caching | Done |
 | 9 | Testing, hardening, launch | |
 | 10 | Memberships (gateways already built in, switched off) | Later |
 

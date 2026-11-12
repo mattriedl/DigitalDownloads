@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Models\Concerns\FlushesSiteCache;
+use App\Models\Concerns\HasPublicUrl;
 use App\Models\Concerns\HasSlug;
 use App\Models\Concerns\RecordsAdminActivity;
+use App\Support\Images;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +14,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
-    use FlushesSiteCache, HasSlug, RecordsAdminActivity, SoftDeletes;
+    use FlushesSiteCache, HasPublicUrl, HasSlug, RecordsAdminActivity, SoftDeletes;
+
+    protected static string $publicPrefix = '/blog/';
 
     protected $guarded = ['id', 'view_count'];
 
@@ -22,6 +26,16 @@ class Post extends Model
             'faq' => 'array',
             'published_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // Drop the old resized copies when the image is replaced or removed.
+        static::saved(function (Post $m) {
+            if ($m->wasChanged('image')) {
+                Images::forget($m->getOriginal('image'));
+            }
+        });
     }
 
     public function category(): BelongsTo

@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Models\Concerns\FlushesSiteCache;
+use App\Models\Concerns\HasPublicUrl;
 use App\Models\Concerns\HasSlug;
 use App\Models\Concerns\RecordsAdminActivity;
+use App\Support\Images;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +18,9 @@ use Illuminate\Support\Facades\DB;
 
 class Item extends Model
 {
-    use FlushesSiteCache, HasFactory, HasSlug, RecordsAdminActivity, SoftDeletes;
+    use FlushesSiteCache, HasFactory, HasPublicUrl, HasSlug, RecordsAdminActivity, SoftDeletes;
+
+    protected static string $publicPrefix = '/download/';
 
     public const STATUS_DRAFT = 'draft';
 
@@ -41,6 +45,13 @@ class Item extends Model
 
     protected static function booted(): void
     {
+        // Drop the old resized copies when the image is replaced or removed.
+        static::saved(function (Item $m) {
+            if ($m->wasChanged('thumbnail')) {
+                Images::forget($m->getOriginal('thumbnail'));
+            }
+        });
+
         // Publishing without a date means "now".
         static::saving(function (Item $item) {
             if ($item->status === self::STATUS_PUBLISHED && $item->published_at === null) {
