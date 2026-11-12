@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasSlug;
+use App\Models\Concerns\RecordsAdminActivity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class Item extends Model
 {
-    use HasFactory, HasSlug, SoftDeletes;
+    use HasFactory, HasSlug, RecordsAdminActivity, SoftDeletes;
 
     public const STATUS_DRAFT = 'draft';
 
@@ -39,6 +40,13 @@ class Item extends Model
 
     protected static function booted(): void
     {
+        // Publishing without a date means "now".
+        static::saving(function (Item $item) {
+            if ($item->status === self::STATUS_PUBLISHED && $item->published_at === null) {
+                $item->published_at = now();
+            }
+        });
+
         // Keep category counters right whenever an item is saved, moved or removed.
         $recount = function (Item $item) {
             $ids = array_filter([$item->category_id, $item->getOriginal('category_id')]);

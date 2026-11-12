@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsAdminActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class NotificationTemplate extends Model
 {
+    use RecordsAdminActivity;
+
     protected $guarded = ['id'];
 
     protected function casts(): array

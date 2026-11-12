@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasSlug;
+use App\Models\Concerns\RecordsAdminActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Plan extends Model
 {
-    use HasSlug;
+    use HasSlug, RecordsAdminActivity;
 
     public const PERKS = ['no_ads', 'no_countdown', 'priority_downloads', 'members_only_items'];
 

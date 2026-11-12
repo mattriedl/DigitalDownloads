@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsAdminActivity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,8 @@ use Illuminate\Support\Collection;
 
 class Ad extends Model
 {
+    use RecordsAdminActivity;
+
     public const TYPE_IMAGE = 'image';
 
     public const TYPE_CODE = 'code';

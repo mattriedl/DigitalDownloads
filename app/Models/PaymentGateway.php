@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsAdminActivity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /** Stripe, PayPal and crypto are installed on every site, switched off until memberships launch. */
 class PaymentGateway extends Model
 {
+    use RecordsAdminActivity;
+
     protected $guarded = ['id'];
 
     protected $hidden = ['credentials'];

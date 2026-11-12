@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsAdminActivity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /** A visitor report: broken link, DMCA takedown, wrong info or other. */
 class Report extends Model
 {
+    use RecordsAdminActivity;
+
     public const TYPES = ['broken_link', 'dmca', 'wrong_info', 'other'];
 
     protected $guarded = ['id'];

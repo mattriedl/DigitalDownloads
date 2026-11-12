@@ -3,10 +3,15 @@
     "name": "mattriedl/digitaldownloads",
     "type": "project",
     "description": "Digital download portal script: one codebase, installed separately on each domain.",
-    "keywords": ["laravel", "downloads", "portal"],
+    "keywords": [
+        "laravel",
+        "downloads",
+        "portal"
+    ],
     "license": "proprietary",
     "require": {
         "php": "^8.3",
+        "filament/filament": "^5.11",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0"
     },
@@ -53,7 +58,8 @@
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@php artisan filament:upgrade"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"

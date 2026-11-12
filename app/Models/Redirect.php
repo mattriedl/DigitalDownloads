@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsAdminActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class Redirect extends Model
 {
+    use RecordsAdminActivity;
+
     protected $guarded = ['id', 'hits'];
 
     /** Store paths in one form ("/old-page") so lookups always match. */
