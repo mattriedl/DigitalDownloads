@@ -1,0 +1,4 @@
+# new-site.sh installs this automatically as /etc/cron.d/digitaldownloads-autodeploy.
+# It updates every site within 15 minutes of a push to GitHub main (same pattern as
+# site-autosync); sites with no new commits are skipped.
+*/15 * * * * root /usr/local/bin/dd-deploy >> /var/log/digitaldownloads-deploy.log 2>&1
