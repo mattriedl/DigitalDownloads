@@ -20,8 +20,8 @@ Stack: Laravel 13, PHP 8.3+ (server runs 8.5), MySQL 8, Blade + Tailwind, Vite.
 | 4 | Public front end (dark, ad-heavy theme, countdown download page) | Done |
 | 5 | Accounts, Google sign-in, reviews/comments, dead-link checker, virus scanning | Done |
 | 6 | Advertising: BannerPromote in every zone, ad stats | Done |
-| 7 | Support tickets for members, captcha, SMS | Next |
-| 8 | SEO and performance | |
+| 7 | Support tickets, Turnstile/reCAPTCHA, SMS alerts | Done |
+| 8 | SEO and performance | Next |
 | 9 | Testing, hardening, launch | |
 | 10 | Memberships (gateways already built in, switched off) | Later |
 

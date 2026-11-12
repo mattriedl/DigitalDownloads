@@ -7,10 +7,12 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Models\User;
+use App\Support\Captcha;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -49,6 +51,9 @@ class FortifyServiceProvider extends ServiceProvider
 
         // Banned accounts cannot sign in.
         Fortify::authenticateUsing(function (Request $request) {
+            if (Captcha::enabled()) {
+                Validator::make($request->all(), Captcha::rules())->validate();
+            }
             $user = User::where('email', $request->input('email'))->first();
             if (! $user || ! $user->password || ! Hash::check((string) $request->input('password'), $user->password)) {
                 return null;

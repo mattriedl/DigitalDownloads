@@ -4,6 +4,7 @@ namespace App\Filament\Resources\SupportTickets\RelationManagers;
 
 use App\Models\SupportTicket;
 use App\Models\TicketMessage;
+use App\Support\Notifier;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
@@ -14,6 +15,8 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\HtmlString;
 
 /** The ticket conversation, oldest first, with a Reply button for staff. */
 class MessagesRelationManager extends RelationManager
@@ -46,8 +49,9 @@ class MessagesRelationManager extends RelationManager
                     ->badge()
                     ->color(fn (TicketMessage $record) => $record->is_staff ? 'success' : 'gray'),
                 TextColumn::make('body')->wrap()->label('Message')
-                    ->description(fn (TicketMessage $record) => $record->attachments->isNotEmpty()
-                        ? $record->attachments->count().' attachment(s)' : null),
+                    ->description(fn (TicketMessage $record) => $record->attachments->isEmpty() ? null : new HtmlString(
+                        $record->attachments->map(fn ($file) => '<a class="underline" href="'.e(route('tickets.attachment', [$record->support_ticket_id, $file->id])).'">'.e($file->original_name).'</a>')->implode(' · ')
+                    )),
                 TextColumn::make('created_at')->dateTime('M j, g:i a'),
             ])
             ->headerActions([
@@ -73,7 +77,7 @@ class MessagesRelationManager extends RelationManager
                                 $message->attachments()->create([
                                     'path' => $path,
                                     'original_name' => $data['attachment_names'][$path] ?? basename($path),
-                                    'size' => (int) @filesize(storage_path('app/private/'.$path)),
+                                    'size' => Storage::disk('local')->exists($path) ? Storage::disk('local')->size($path) : 0,
                                 ]);
                             }
                             $ticket->update([
@@ -82,6 +86,13 @@ class MessagesRelationManager extends RelationManager
                                 'assigned_to' => $ticket->assigned_to ?? auth()->id(),
                             ]);
                         });
+
+                        Notifier::send('ticket_reply', $ticket->user?->email, [
+                            'name' => $ticket->user?->name,
+                            'subject' => $ticket->subject,
+                            'message' => $data['body'],
+                            'ticket_url' => route('tickets.show', $ticket),
+                        ]);
                     }),
             ]);
     }

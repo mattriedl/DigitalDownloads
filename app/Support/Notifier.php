@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Jobs\SendSms;
 use App\Mail\TemplateMail;
 use App\Models\NotificationTemplate;
 use Illuminate\Support\Facades\Log;
@@ -32,9 +33,33 @@ class Notifier
         }
     }
 
-    /** Alerts for the site owner, sent to "Send admin alerts to" in Site settings. */
+    /**
+     * Alerts for the site owner: email to "Send admin alerts to", plus a text message to
+     * "Text admin alerts to" when the template has SMS switched on and Twilio is set up.
+     */
     public static function admin(string $templateKey, array $vars = []): void
     {
         static::send($templateKey, setting('admin_notify_email') ?: setting('site_email'), $vars);
+        static::sms($templateKey, setting('admin_notify_phone'), $vars);
+    }
+
+    public static function sms(string $templateKey, ?string $phone, array $vars = []): void
+    {
+        if (! $phone || setting('sms_provider') !== 'twilio') {
+            return;
+        }
+
+        $template = NotificationTemplate::where('key', $templateKey)->first();
+        if (! $template || ! $template->sms_enabled || blank($template->sms_body)) {
+            return;
+        }
+
+        $vars += ['site_name' => setting('site_name', config('app.name'))];
+
+        try {
+            SendSms::dispatch($phone, NotificationTemplate::render($template->sms_body, $vars));
+        } catch (Throwable $e) {
+            Log::warning("Could not queue {$templateKey} SMS: ".$e->getMessage());
+        }
     }
 }

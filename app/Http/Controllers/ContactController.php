@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\ContactMessage;
 use App\Models\Download;
+use App\Support\Captcha;
 use App\Support\Notifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
 class ContactController extends Controller
@@ -28,7 +30,9 @@ class ContactController extends Controller
             'email' => ['required', 'email', 'max:190'],
             'subject' => ['nullable', 'string', 'max:190'],
             'message' => ['required', 'string', 'min:10', 'max:5000'],
+            ...Captcha::rules(),
         ]);
+        $data = Arr::only($data, ['name', 'email', 'subject', 'message']);
 
         ContactMessage::create($data + ['ip_hash' => Download::hashIp($request->ip())]);
 

@@ -14,6 +14,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -44,6 +45,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/account/settings', [AccountController::class, 'settings'])->name('account.settings');
     Route::delete('/account', [AccountController::class, 'destroy'])->name('account.destroy');
     Route::post('/download/{item:slug}/save', [AccountController::class, 'toggleFavorite'])->name('items.favorite');
+
+    Route::get('/account/tickets', [TicketController::class, 'index'])->name('tickets.index');
+    Route::get('/account/tickets/new', [TicketController::class, 'create'])->name('tickets.create');
+    Route::post('/account/tickets', [TicketController::class, 'store'])->middleware('throttle:5,10')->name('tickets.store');
+    Route::get('/account/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+    Route::post('/account/tickets/{ticket}/reply', [TicketController::class, 'reply'])->middleware('throttle:20,10')->name('tickets.reply');
+    Route::post('/account/tickets/{ticket}/close', [TicketController::class, 'close'])->name('tickets.close');
+    Route::get('/account/tickets/{ticket}/files/{attachment}', [TicketController::class, 'attachment'])->name('tickets.attachment');
 
     Route::middleware(['verified', 'throttle:10,10'])->group(function () {
         Route::post('/download/{item:slug}/review', [FeedbackController::class, 'review'])->name('items.review');

@@ -282,6 +282,7 @@
                     @foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach
                 </ul>
             @endif
+            <x-captcha/>
             <div class="flex justify-end gap-2">
                 <button type="button" data-close-dialog class="btn-quiet">Cancel</button>
                 <button class="rounded-md bg-brand px-4 py-2 font-semibold text-brand-ink">Send report</button>

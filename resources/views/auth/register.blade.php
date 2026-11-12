@@ -15,6 +15,7 @@
                 </label>
                 @error('terms')<p class="mt-1 text-sm text-red-400">Please accept the terms to create an account.</p>@enderror
             </div>
+            <x-captcha/>
             <button class="w-full rounded-md bg-brand px-4 py-2.5 font-semibold text-brand-ink">Create account</button>
         </form>
         <x-slot:below>Already have an account? <a href="{{ route('login') }}" class="text-ink underline">Sign in</a></x-slot:below>

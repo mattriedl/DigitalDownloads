@@ -31,6 +31,7 @@
             @error('message')<p id="message-error" class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror
         </div>
         <div class="hidden" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></div>
+        <x-captcha/>
         <button class="rounded-md bg-brand px-5 py-2.5 font-semibold text-brand-ink">Send message</button>
     </form>
 </x-layout>

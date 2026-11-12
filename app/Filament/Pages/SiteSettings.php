@@ -57,7 +57,7 @@ class SiteSettings extends Page
         'ads' => ['ads_enabled', 'bannerpromote_script_url', 'countdown_enabled', 'countdown_seconds', 'adsense_publisher_id', 'ads_txt', 'consent_banner_enabled', 'consent_cmp_code'],
         'community' => ['reviews_enabled', 'reviews_require_approval', 'comments_enabled', 'comments_require_approval'],
         'integrations' => ['google_login_enabled', 'google_client_id', 'google_client_secret', 'captcha_provider', 'captcha_site_key', 'captcha_secret_key', 'live_chat_code', 'head_code', 'body_end_code', 'custom_css'],
-        'notifications' => ['mail_from_name', 'mail_from_address', 'admin_notify_email', 'sms_provider', 'sms_api_key'],
+        'notifications' => ['mail_from_name', 'mail_from_address', 'admin_notify_email', 'sms_provider', 'sms_api_key', 'sms_from', 'admin_notify_phone'],
         'payments' => ['memberships_enabled', 'currency'],
     ];
 
@@ -180,8 +180,12 @@ class SiteSettings extends Page
                         TextInput::make('mail_from_address')->label('Send emails from')->email(),
                         TextInput::make('admin_notify_email')->label('Send admin alerts to')->email()
                             ->helperText('New tickets, reports, contact messages and broken links.'),
-                        Select::make('sms_provider')->placeholder('None')->options(['twilio' => 'Twilio', 'vonage' => 'Vonage']),
-                        TextInput::make('sms_api_key')->label('SMS API key')->password()->revealable()
+                        Select::make('sms_provider')->label('Text message alerts')->placeholder('Off')->options(['twilio' => 'Twilio'])->live(),
+                        TextInput::make('admin_notify_phone')->label('Text admin alerts to')->tel()->placeholder('+15035551234')
+                            ->helperText('Turn on SMS for each alert in System → Email templates.'),
+                        TextInput::make('sms_from')->label('Send texts from (Twilio number)')->tel()->placeholder('+15035550000'),
+                        TextInput::make('sms_api_key')->label('Twilio Account SID and Auth Token')->password()->revealable()
+                            ->helperText('Enter as AccountSID:AuthToken')
                             ->placeholder(fn () => setting('sms_api_key') ? 'Saved (leave blank to keep)' : null),
                     ]),
                 ]),

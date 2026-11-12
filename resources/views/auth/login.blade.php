@@ -9,6 +9,7 @@
                 <p class="mt-1 text-right text-sm"><a href="{{ route('password.request') }}" class="text-muted hover:text-ink">Forgot your password?</a></p>
             </div>
             <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="remember" value="1" class="accent-[var(--c-brand)]"> Keep me signed in</label>
+            <x-captcha/>
             <button class="w-full rounded-md bg-brand px-4 py-2.5 font-semibold text-brand-ink">Sign in</button>
         </form>
         @if (setting('registration_enabled', true))

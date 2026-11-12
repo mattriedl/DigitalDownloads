@@ -157,6 +157,8 @@ class DefaultsSeeder extends Seeder
                 'mail_from_address' => null,
                 'admin_notify_email' => null,
                 'sms_provider' => null,
+                'sms_from' => null,
+                'admin_notify_phone' => null,
             ],
             'payments' => [
                 'memberships_enabled' => false,
@@ -219,13 +221,26 @@ class DefaultsSeeder extends Seeder
             ['payment_receipt', 'Payment receipt', 'Receipt for {{amount}}', "Hi {{name}},\n\nWe received your payment of {{amount}} for {{plan}} on {{date}}.\n\nReference: {{reference}}", ['name', 'amount', 'plan', 'date', 'reference']],
         ];
 
+        $sms = [
+            'admin_new_ticket' => '{{site_name}}: new support ticket "{{subject}}" from {{name}}',
+            'admin_new_report' => '{{site_name}}: new {{type}} report on {{item_title}}',
+            'admin_broken_links' => '{{site_name}}: {{count}} download links just broke',
+            'admin_infected_file' => '{{site_name}}: virus found and removed in a file for {{item_title}}',
+            'admin_contact_message' => '{{site_name}}: contact message from {{name}}',
+        ];
+
         foreach ($templates as [$key, $name, $subject, $body, $vars]) {
-            NotificationTemplate::firstOrCreate(['key' => $key], [
+            $template = NotificationTemplate::firstOrCreate(['key' => $key], [
                 'name' => $name,
                 'subject' => $subject,
                 'email_body' => $body,
                 'variables' => $vars,
+                'sms_body' => $sms[$key] ?? null,
             ]);
+            // Existing sites get the SMS text once, without touching anything an admin wrote.
+            if (isset($sms[$key]) && $template->sms_body === null) {
+                $template->update(['sms_body' => $sms[$key]]);
+            }
         }
     }
 
