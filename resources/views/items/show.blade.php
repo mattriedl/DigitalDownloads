@@ -139,7 +139,7 @@
             <section aria-labelledby="about">
                 <h2 id="about" class="section-title mb-2">About {{ $item->title }}</h2>
                 <div class="prose-site">
-                    {!! $item->description ?: '<p>'.e($item->short_description).'</p>' !!}
+                    {!! $item->description ? safe_html($item->description) : '<p>'.e($item->short_description).'</p>' !!}
                 </div>
                 <x-ad-slot zone="item_in_description" :category="$item->category_id" class="my-6"/>
             </section>

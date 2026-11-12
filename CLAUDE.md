@@ -27,3 +27,10 @@ a setting (`App\Support\Settings`, `setting('key')`) or database content.
   Old slugs on bound routes reach the redirect via the 404 handler in `bootstrap/app.php`.
 - Uploaded images are shown through `Images::url($path, $width)` (WebP copies in
   `storage/app/public/resized`); `robots.txt` and the sitemaps are routes, not files in `public/`.
+- Rich text from the admin is printed with `safe_html()` (sanitized): editors aren't admins.
+  Only admin-only settings/ad code are printed raw.
+- Error pages: 500/503 are standalone (no DB, settings or Vite); the rest use `errors._message`.
+  Deploys use `artisan down --render="errors::503"`.
+- Backups: `deploy/backup-all.sh` (`dd-backup`, nightly cron from `install_scripts`); the
+  backup includes `.env` because APP_KEY decrypts the encrypted settings.
+- Tests pass on SQLite and MySQL; don't assume auto-increment IDs in tests.

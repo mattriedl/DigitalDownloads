@@ -22,7 +22,7 @@ Stack: Laravel 13, PHP 8.3+ (server runs 8.5), MySQL 8, Blade + Tailwind, Vite.
 | 6 | Advertising: BannerPromote in every zone, ad stats | Done |
 | 7 | Support tickets, Turnstile/reCAPTCHA, SMS alerts | Done |
 | 8 | Sitemaps, robots.txt, IndexNow, slug redirects, schema, WebP thumbnails, caching | Done |
-| 9 | Testing, hardening, launch | |
+| 9 | Hardening, error pages, backups, MySQL test pass, launch checklist | Done (first live site waits for its domain) |
 | 10 | Memberships (gateways already built in, switched off) | Later |
 
 ## Adding a site on the server
@@ -40,6 +40,49 @@ and registers the domain in `/etc/digitaldownloads/sites`. Then:
 
 1. Point DNS at the server (Cloudflare) and issue SSL with certbot.
 2. Run the installer: `cd /var/www/<domain>/app && sudo -u www-data php artisan site:install`
+
+## Launch checklist (each new domain)
+
+Before the site goes public:
+
+1. `sudo dd-new-site example.com`, then DNS in Cloudflare and `certbot --apache -d example.com -d www.example.com`.
+2. `sudo -u www-data php artisan site:install` (no `--demo` on a real site). Use a password manager for the admin password.
+3. Sign in at `/admin`, open your profile and turn on two-factor sign-in (authenticator app). Save the recovery codes.
+4. **Site settings**:
+   - General: site name, tagline, contact email, timezone.
+   - Branding: logo, favicon, colors.
+   - SEO: homepage title and description, social image, Google and Bing verification codes.
+   - Ads: BannerPromote spots are already on every zone; fill in `ads.txt` if a network asks for one.
+   - Integrations: Turnstile keys (spam protection on sign-up, contact and reports); Google sign-in if wanted.
+   - Email: SMTP from address. Send yourself a test with the contact form.
+5. Edit the starter pages (About, Privacy, Terms, DMCA, Cookie policy) with this site's real details.
+6. Add categories and the first items. Check one download end to end: item page → countdown → destination.
+7. Google Search Console and Bing Webmaster Tools: add the site, submit `https://example.com/sitemap.xml`.
+8. Check backups the next morning: `ls /var/backups/digitaldownloads/example.com/`.
+9. Optional off-server copies: install rclone, then add `BACKUP_RCLONE_REMOTE=remote:bucket/path`
+   to `/etc/digitaldownloads/config`.
+
+## Backups and restoring
+
+`dd-backup` runs nightly at 03:40 for every site and keeps 14 days in
+`/var/backups/digitaldownloads/<domain>/<date>/`:
+
+- `database.sql.gz`: the full database.
+- `uploads.tar.gz`: `storage/app`, i.e. uploaded images, hosted files and ticket attachments.
+- `env`: the site's `.env`. It holds `APP_KEY`, which is needed to read encrypted settings, so always restore it with the database.
+
+Run `sudo dd-backup example.com` for an extra backup before a risky change.
+
+To restore one site:
+
+```bash
+cd /var/www/example.com/app && B=/var/backups/digitaldownloads/example.com/2026-12-01
+sudo -u www-data php artisan down
+sudo cp $B/env .env && sudo chown www-data:www-data .env && sudo chmod 600 .env
+gunzip -c $B/database.sql.gz | sudo mysql "$(grep ^DB_DATABASE= .env | cut -d= -f2)"
+sudo tar -xzf $B/uploads.tar.gz -C storage && sudo chown -R www-data:www-data storage
+sudo -u www-data php artisan optimize:clear && sudo -u www-data php artisan optimize && sudo -u www-data php artisan up
+```
 
 ## Server requirements per site
 

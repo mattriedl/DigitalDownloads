@@ -44,7 +44,7 @@ deploy_site() {
     fi
 
     log "[$domain] Deploying ${current:0:7} -> ${target:0:7}"
-    as_user "$PHP_BIN" artisan down --retry=30 >/dev/null 2>&1 || true
+    as_user "$PHP_BIN" artisan down --retry=30 --render="errors::503" >/dev/null 2>&1 || true
 
     if as_user git reset --hard --quiet "$target" \
         && build_site "$app" \

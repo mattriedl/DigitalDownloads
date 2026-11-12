@@ -34,18 +34,22 @@ ensure_dirs() {
 valid_domain() { [[ "$1" =~ ^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$ ]]; }
 
 # Keep a stable copy of these scripts outside any site checkout, so cron never
-# runs a file that a deploy is rewriting. Exposes `dd-deploy` and `dd-new-site`.
+# runs a file that a deploy is rewriting. Exposes `dd-deploy`, `dd-new-site` and `dd-backup`.
 SCRIPT_HOME="${SCRIPT_HOME:-/usr/local/lib/digitaldownloads}"
 install_scripts() {
     local src="$1"
     mkdir -p "$SCRIPT_HOME"
-    for f in common.sh deploy-all.sh new-site.sh digitaldownloads-queue@.service; do
+    for f in common.sh deploy-all.sh new-site.sh backup-all.sh digitaldownloads-queue@.service; do
         [ -f "$src/$f" ] || continue
         cp "$src/$f" "$SCRIPT_HOME/.$f.tmp" && mv -f "$SCRIPT_HOME/.$f.tmp" "$SCRIPT_HOME/$f"
     done
     printf '#!/usr/bin/env bash\nexec bash %s/deploy-all.sh "$@"\n' "$SCRIPT_HOME" > /usr/local/bin/dd-deploy
     printf '#!/usr/bin/env bash\nexec bash %s/new-site.sh "$@"\n' "$SCRIPT_HOME" > /usr/local/bin/dd-new-site
-    chmod 755 /usr/local/bin/dd-deploy /usr/local/bin/dd-new-site
+    printf '#!/usr/bin/env bash\nexec bash %s/backup-all.sh "$@"\n' "$SCRIPT_HOME" > /usr/local/bin/dd-backup
+    chmod 755 /usr/local/bin/dd-deploy /usr/local/bin/dd-new-site /usr/local/bin/dd-backup
+    # Nightly backups of every site (added once; existing servers get it on their next deploy).
+    [ -f /etc/cron.d/digitaldownloads-backup ] \
+        || echo "40 3 * * * root /usr/local/bin/dd-backup >> $LOG_FILE 2>&1" > /etc/cron.d/digitaldownloads-backup
 }
 
 # Build steps shared by first install and every deploy.

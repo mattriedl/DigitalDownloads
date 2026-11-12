@@ -5,6 +5,7 @@ namespace App\Actions\Fortify;
 use App\Models\User;
 use App\Support\Captcha;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -25,6 +26,13 @@ class CreateNewUser implements CreatesNewUsers
     {
         // Registration can be closed per site in Site settings.
         abort_unless(setting('registration_enabled', true), 403, 'Sign-ups are closed.');
+
+        // At most 5 new accounts per IP address per hour.
+        $key = 'register:'.request()->ip();
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            throw ValidationException::withMessages(['email' => 'Too many sign-ups from your network. Please try again in an hour.']);
+        }
+        RateLimiter::hit($key, 3600);
 
         // Bots fill the hidden field; people never see it.
         if (filled($input['website'] ?? null)) {

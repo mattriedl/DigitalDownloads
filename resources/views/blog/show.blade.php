@@ -45,7 +45,7 @@
             </figure>
         @endif
 
-        <div class="prose-site mt-6">{!! $post->body !!}</div>
+        <div class="prose-site mt-6">{!! safe_html($post->body) !!}</div>
 
         <x-ad-slot zone="blog_in_article" class="my-8"/>
 
