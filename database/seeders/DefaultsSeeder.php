@@ -2,12 +2,14 @@
 
 namespace Database\Seeders;
 
+use App\Models\Ad;
 use App\Models\AdZone;
 use App\Models\MenuItem;
 use App\Models\NotificationTemplate;
 use App\Models\Page;
 use App\Models\PaymentGateway;
 use App\Models\Setting;
+use App\Support\BannerPromote;
 use App\Support\Settings;
 use Illuminate\Database\Seeder;
 
@@ -24,6 +26,7 @@ class DefaultsSeeder extends Seeder
     {
         $this->adZones();
         $this->settings();
+        $this->bannerPromoteAds();
         $this->gateways();
         $this->templates();
         $this->pages();
@@ -62,6 +65,33 @@ class DefaultsSeeder extends Seeder
         }
     }
 
+    /**
+     * New sites start with a BannerPromote ad in every zone, sized to fit it.
+     * Runs once per site (remembered in settings), so ads an admin removes stay removed.
+     */
+    private function bannerPromoteAds(): void
+    {
+        $settings = app(Settings::class);
+        if ($settings->get('bannerpromote_seeded')) {
+            return;
+        }
+
+        foreach (AdZone::all() as $zone) {
+            [$spot, $mobileSpot] = BannerPromote::ZONE_SPOTS[$zone->key] ?? [null, null];
+            if (! $spot || $zone->ads()->exists()) {
+                continue;
+            }
+            $zone->ads()->create([
+                'name' => 'BannerPromote: '.$zone->name,
+                'type' => Ad::TYPE_BANNERPROMOTE,
+                'spot' => $spot,
+                'mobile_spot' => $mobileSpot,
+            ]);
+        }
+
+        $settings->set('bannerpromote_seeded', now()->toIso8601String(), 'system');
+    }
+
     private function settings(): void
     {
         $defaults = [
@@ -98,6 +128,7 @@ class DefaultsSeeder extends Seeder
             ],
             'ads' => [
                 'ads_enabled' => true,
+                'bannerpromote_script_url' => BannerPromote::DEFAULT_SCRIPT,
                 'countdown_enabled' => true,
                 'countdown_seconds' => 10,
                 'adsense_publisher_id' => null,

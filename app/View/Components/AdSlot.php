@@ -41,6 +41,9 @@ class AdSlot extends Component
 
         if ($this->ad) {
             app(AdTracker::class)->impression($this->ad);
+            if ($this->ad->type === Ad::TYPE_BANNERPROMOTE) {
+                app(AdTracker::class)->needsBannerPromote = true;
+            }
 
             return;
         }

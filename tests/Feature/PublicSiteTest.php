@@ -152,6 +152,7 @@ class PublicSiteTest extends TestCase
     public function test_ads_render_count_impressions_and_track_clicks(): void
     {
         $zone = AdZone::where('key', 'sidebar_top')->firstOrFail();
+        $zone->ads()->update(['is_active' => false]); // leave only the test ad in this zone
         $ad = Ad::create(['ad_zone_id' => $zone->id, 'name' => 'Sponsor', 'type' => Ad::TYPE_IMAGE, 'image_path' => 'ads/x.png', 'target_url' => 'https://sponsor.test']);
 
         $this->get('/')->assertSee(route('ads.click', $ad), false);

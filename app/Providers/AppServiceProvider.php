@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\AdTracker;
 use App\Support\Notifier;
 use App\Support\Settings;
 use Illuminate\Auth\Events\Login;
@@ -19,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(Settings::class);
+        $this->app->scoped(AdTracker::class);
     }
 
     /**

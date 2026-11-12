@@ -17,6 +17,8 @@ class Ad extends Model
 
     public const TYPE_CODE = 'code';
 
+    public const TYPE_BANNERPROMOTE = 'bannerpromote';
+
     protected $guarded = ['id', 'impressions', 'clicks'];
 
     protected function casts(): array

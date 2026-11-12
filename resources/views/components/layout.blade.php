@@ -52,7 +52,7 @@
     @if (setting('custom_css'))<style>{!! strip_tags(setting('custom_css')) !!}</style>@endif
     {{ $head ?? '' }}
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen pb-16 md:pb-0">
 <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-brand focus:px-3 focus:py-2 focus:text-brand-ink">Skip to content</a>
 
 <header class="border-b border-rule bg-surface">
@@ -208,6 +208,23 @@
     </div>
 @endif
 
+@if (app(\App\Support\AdTracker::class)->needsBannerPromote)
+    <script>
+        // Give each BannerPromote slot its spot name (the smaller phone spot on narrow screens),
+        // then load BannerPromote's script once for the whole page.
+        (function () {
+            var phone = !window.matchMedia('(min-width: 768px)').matches;
+            document.querySelectorAll('[data-bp-spot]').forEach(function (el) {
+                // Slots hidden at this screen size (e.g. the desktop header banner on a phone) stay empty.
+                if (el.offsetParent === null && getComputedStyle(el).position !== 'fixed') return;
+                var usePhone = phone && el.dataset.bpMobileSpot;
+                el.setAttribute('data-gb-spot', usePhone ? el.dataset.bpMobileSpot : el.dataset.bpSpot);
+                el.style.minHeight = (usePhone ? el.dataset.bpMobileHeight : el.dataset.bpHeight) + 'px';
+            });
+        })();
+    </script>
+    <script src="{{ \App\Support\BannerPromote::scriptUrl() }}" async></script>
+@endif
 {!! setting('live_chat_code') !!}
 {!! setting('body_end_code') !!}
 </body>

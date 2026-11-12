@@ -16,6 +16,9 @@ class AdTracker
 
     private bool $registered = false;
 
+    /** Set when a BannerPromote ad is on the page, so the layout loads its script once. */
+    public bool $needsBannerPromote = false;
+
     public function impression(Ad $ad): void
     {
         $this->impressions[$ad->id] = ($this->impressions[$ad->id] ?? 0) + 1;

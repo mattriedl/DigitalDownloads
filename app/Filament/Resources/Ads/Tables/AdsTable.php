@@ -23,7 +23,12 @@ class AdsTable
             ->columns([
                 TextColumn::make('name')->searchable()->description(fn (Ad $ad) => $ad->category ? 'Only in '.$ad->category->name : null),
                 TextColumn::make('zone.name')->label('Zone')->sortable(),
-                TextColumn::make('type')->badge()->formatStateUsing(fn ($state) => $state === Ad::TYPE_CODE ? 'Code' : 'Image'),
+                TextColumn::make('type')->badge()
+                    ->formatStateUsing(fn ($state, Ad $record) => match ($state) {
+                        Ad::TYPE_BANNERPROMOTE => 'BannerPromote: '.$record->spot.($record->mobile_spot ? ' / '.$record->mobile_spot : ''),
+                        Ad::TYPE_CODE => 'Code',
+                        default => 'Image',
+                    }),
                 TextColumn::make('impressions')->numeric()->sortable(),
                 TextColumn::make('clicks')->numeric()->sortable(),
                 TextColumn::make('ctr')->label('CTR')->state(fn (Ad $ad) => $ad->ctr().'%'),

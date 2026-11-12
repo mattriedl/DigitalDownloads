@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Ads\Pages;
 
 use App\Filament\Resources\Ads\AdResource;
+use App\Filament\Resources\Ads\Widgets\AdPerformanceChart;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
@@ -15,5 +16,10 @@ class ListAds extends ListRecords
         return [
             CreateAction::make(),
         ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [AdPerformanceChart::class];
     }
 }

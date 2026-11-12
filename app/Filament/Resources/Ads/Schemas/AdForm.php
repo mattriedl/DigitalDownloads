@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Ads\Schemas;
 use App\Filament\Resources\Items\Schemas\ItemForm;
 use App\Models\Ad;
 use App\Models\AdZone;
+use App\Support\BannerPromote;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -33,8 +34,25 @@ class AdForm
                             $z->id => $z->name.($z->width ? " ({$z->width}×{$z->height})" : ''),
                         ])),
                     ToggleButtons::make('type')->inline()->required()->live()->columnSpanFull()
-                        ->options([Ad::TYPE_CODE => 'Ad network code (AdSense etc.)', Ad::TYPE_IMAGE => 'Image banner'])
-                        ->default(Ad::TYPE_CODE),
+                        ->options([
+                            Ad::TYPE_BANNERPROMOTE => 'BannerPromote',
+                            Ad::TYPE_CODE => 'Other ad code (AdSense etc.)',
+                            Ad::TYPE_IMAGE => 'Image banner',
+                        ])
+                        ->default(Ad::TYPE_BANNERPROMOTE),
+                    Select::make('spot')
+                        ->label('BannerPromote spot')
+                        ->options(BannerPromote::options())
+                        ->default(fn (Get $get) => BannerPromote::ZONE_SPOTS[AdZone::find($get('ad_zone_id'))?->key][0] ?? 'leaderboard')
+                        ->helperText('The banner size shown on computers and tablets.')
+                        ->required(fn (Get $get) => $get('type') === Ad::TYPE_BANNERPROMOTE)
+                        ->visible(fn (Get $get) => $get('type') === Ad::TYPE_BANNERPROMOTE),
+                    Select::make('mobile_spot')
+                        ->label('Spot on phones')
+                        ->placeholder('Same as above')
+                        ->options(BannerPromote::options())
+                        ->helperText('Pick a smaller size if the main one is wider than a phone (over 320px).')
+                        ->visible(fn (Get $get) => $get('type') === Ad::TYPE_BANNERPROMOTE),
                     Textarea::make('code')
                         ->label('Ad code')
                         ->rows(8)

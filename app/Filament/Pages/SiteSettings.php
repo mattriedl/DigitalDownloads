@@ -54,7 +54,7 @@ class SiteSettings extends Page
         'general' => ['site_name', 'site_tagline', 'site_url', 'site_email', 'timezone', 'items_per_page', 'registration_enabled', 'maintenance_message'],
         'branding' => ['logo', 'logo_dark', 'favicon', 'theme', 'primary_color', 'accent_color', 'footer_text', 'social_links'],
         'seo' => ['seo_home_title', 'seo_home_description', 'seo_title_suffix', 'og_image', 'google_analytics_id', 'google_site_verification', 'bing_site_verification', 'robots_txt_extra'],
-        'ads' => ['ads_enabled', 'countdown_enabled', 'countdown_seconds', 'adsense_publisher_id', 'ads_txt', 'consent_banner_enabled', 'consent_cmp_code'],
+        'ads' => ['ads_enabled', 'bannerpromote_script_url', 'countdown_enabled', 'countdown_seconds', 'adsense_publisher_id', 'ads_txt', 'consent_banner_enabled', 'consent_cmp_code'],
         'community' => ['reviews_enabled', 'reviews_require_approval', 'comments_enabled', 'comments_require_approval'],
         'integrations' => ['google_login_enabled', 'google_client_id', 'google_client_secret', 'captcha_provider', 'captcha_site_key', 'captcha_secret_key', 'live_chat_code', 'head_code', 'body_end_code', 'custom_css'],
         'notifications' => ['mail_from_name', 'mail_from_address', 'admin_notify_email', 'sms_provider', 'sms_api_key'],
@@ -134,6 +134,8 @@ class SiteSettings extends Page
                         Toggle::make('countdown_enabled')->label('Show a countdown page before each download')->live(),
                         TextInput::make('countdown_seconds')->numeric()->minValue(0)->maxValue(60)->suffix('seconds')
                             ->visible(fn (Get $get) => $get('countdown_enabled')),
+                        TextInput::make('bannerpromote_script_url')->label('BannerPromote script URL')->url()
+                            ->helperText('Loaded once on pages that show BannerPromote ads. Change only if BannerPromote gives you a new address.'),
                         TextInput::make('adsense_publisher_id')->label('AdSense publisher ID')->placeholder('pub-0000000000000000'),
                         Textarea::make('ads_txt')->label('ads.txt')->rows(4)->columnSpanFull()
                             ->helperText('Served at /ads.txt. AdSense needs a line like: google.com, pub-XXXX, DIRECT, f08c47fec0942fa0'),
