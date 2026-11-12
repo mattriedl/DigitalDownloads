@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\FlushesSiteCache;
 use App\Models\Concerns\HasSlug;
 use App\Models\Concerns\RecordsAdminActivity;
 use Illuminate\Database\Eloquent\Builder;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Page extends Model
 {
-    use HasSlug, RecordsAdminActivity;
+    use FlushesSiteCache, HasSlug, RecordsAdminActivity;
 
     protected $guarded = ['id'];
 

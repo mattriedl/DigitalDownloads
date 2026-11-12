@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\FlushesSiteCache;
 use App\Models\Concerns\HasSlug;
 use App\Models\Concerns\RecordsAdminActivity;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
-    use HasFactory, HasSlug, RecordsAdminActivity;
+    use FlushesSiteCache, HasFactory, HasSlug, RecordsAdminActivity;
 
     protected $guarded = ['id', 'items_count'];
 
@@ -53,8 +54,10 @@ class Category extends Model
     public function descendantIds(): array
     {
         $ids = [$this->id];
-        foreach ($this->children as $child) {
-            $ids = array_merge($ids, $child->descendantIds());
+        $level = [$this->id];
+        // Walk down one level per query; the tree is shallow (category > subcategory).
+        while ($level = static::whereIn('parent_id', $level)->pluck('id')->all()) {
+            $ids = array_merge($ids, $level);
         }
 
         return $ids;

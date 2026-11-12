@@ -2,8 +2,172 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+@source '../../app/View/**/*.php';
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+/* The site theme is chosen per site in admin (dark / light / match visitor). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Colors come from CSS variables so each site's admin-chosen brand color applies
+ * without rebuilding assets. Light values first, dark overrides below.
+ */
+@theme inline {
+    --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Archivo Narrow', 'Archivo', ui-sans-serif, system-ui, sans-serif;
+
+    --color-page: var(--c-page);
+    --color-surface: var(--c-surface);
+    --color-raised: var(--c-raised);
+    --color-rule: var(--c-rule);
+    --color-ink: var(--c-ink);
+    --color-muted: var(--c-muted);
+    --color-brand: var(--c-brand);
+    --color-brand-ink: var(--c-brand-ink);
+    --color-star: var(--c-star);
+}
+
+:root {
+    --c-page: #eef1f6;
+    --c-surface: #ffffff;
+    --c-raised: #f4f6fa;
+    --c-rule: #d9dfe8;
+    --c-ink: #142033;
+    --c-muted: #5b6b82;
+    --c-brand: #16a34a;
+    --c-brand-ink: #ffffff;
+    --c-star: #d98a06;
+}
+
+.dark {
+    --c-page: #0e1520;
+    --c-surface: #162030;
+    --c-raised: #1d2a3d;
+    --c-rule: #2a3a52;
+    --c-ink: #e8edf4;
+    --c-muted: #8b9ab0;
+    --c-star: #f5a524;
+    color-scheme: dark;
+}
+
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        @apply bg-page font-sans text-ink antialiased;
+        font-size: 15px;
+        line-height: 1.55;
+    }
+
+    h1,
+    h2,
+    h3 {
+        @apply font-display tracking-tight;
+        line-height: 1.15;
+    }
+
+    a {
+        @apply transition-colors;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--c-brand);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            transition-duration: 0.01ms !important;
+            animation-duration: 0.01ms !important;
+        }
+    }
+}
+
+@layer components {
+    .panel {
+        @apply rounded-lg border border-rule bg-surface;
+    }
+
+    .btn-download {
+        @apply inline-flex items-center justify-center gap-2 rounded-md bg-brand px-5 py-3 font-display text-lg font-semibold text-brand-ink;
+        box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.18);
+    }
+
+    .btn-download:hover {
+        filter: brightness(1.08);
+    }
+
+    .btn-quiet {
+        @apply inline-flex items-center gap-2 rounded-md border border-rule bg-raised px-3 py-2 text-sm font-medium text-ink hover:border-brand;
+    }
+
+    .field {
+        @apply w-full rounded-md border border-rule bg-raised px-3 py-2 text-ink placeholder:text-muted focus:border-brand focus:outline-none;
+    }
+
+    .section-title {
+        @apply font-display text-xl font-semibold text-ink;
+    }
+
+    /* Article body and item descriptions written in the admin rich editor */
+    .prose-site {
+        @apply max-w-[72ch] text-[15.5px] leading-7 text-ink;
+    }
+
+    .prose-site :where(p, ul, ol, table, blockquote, pre) {
+        @apply my-4;
+    }
+
+    .prose-site :where(h2) {
+        @apply mt-8 mb-3 text-2xl font-semibold;
+    }
+
+    .prose-site :where(h3) {
+        @apply mt-6 mb-2 text-xl font-semibold;
+    }
+
+    .prose-site :where(ul) {
+        @apply list-disc pl-6;
+    }
+
+    .prose-site :where(ol) {
+        @apply list-decimal pl-6;
+    }
+
+    .prose-site :where(a) {
+        @apply text-brand underline underline-offset-2;
+    }
+
+    .prose-site :where(blockquote) {
+        @apply border-l-2 border-brand pl-4 text-muted;
+    }
+
+    .prose-site :where(img) {
+        @apply rounded-md;
+    }
+
+    .prose-site :where(table) {
+        @apply w-full border-collapse text-sm;
+    }
+
+    .prose-site :where(td, th) {
+        @apply border border-rule px-3 py-2 text-left;
+    }
+
+    .prose-site :where(code) {
+        @apply rounded bg-raised px-1 py-0.5 text-[0.9em];
+    }
+
+    .scrollbar-none {
+        scrollbar-width: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
 }

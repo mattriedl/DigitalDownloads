@@ -17,3 +17,8 @@ a setting (`App\Support\Settings`, `setting('key')`) or database content.
 - Deploy: push to `main`; server cron runs `deploy/deploy-all.sh` for every domain in
   `/etc/digitaldownloads/sites`.
 - Run `php artisan test` before pushing.
+- Never register Eloquent events (`Item::saved(...)`) from a service provider: it stops the
+  model's own `booted()` hooks from registering. Use a model trait (`FlushesSiteCache`).
+- Cached model data (homepage, nav) needs its class in `config/cache.php`
+  `serializable_classes`; bump the cache key (`home_page_v2`) when its shape changes.
+- `<x-icon>` belongs to blade-icons (Filament); site icons are `<x-ui-icon>`.

@@ -1,5 +1,11 @@
 <?php
 
+use App\Models\Category;
+use App\Models\Item;
+use App\Models\MenuItem;
+use App\Models\Page;
+use App\Models\Post;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 return [
@@ -131,6 +137,17 @@ return [
     |
     */
 
-    'serializable_classes' => false,
+    // Only the models and collections the site caches (navigation, homepage lists).
+    'serializable_classes' => [
+        Category::class,
+        Item::class,
+        MenuItem::class,
+        Page::class,
+        Post::class,
+        Illuminate\Database\Eloquent\Collection::class,
+        Collection::class,
+        Illuminate\Support\Carbon::class,
+        Carbon\Carbon::class,
+    ],
 
 ];

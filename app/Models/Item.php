@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\FlushesSiteCache;
 use App\Models\Concerns\HasSlug;
 use App\Models\Concerns\RecordsAdminActivity;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class Item extends Model
 {
-    use HasFactory, HasSlug, RecordsAdminActivity, SoftDeletes;
+    use FlushesSiteCache, HasFactory, HasSlug, RecordsAdminActivity, SoftDeletes;
 
     public const STATUS_DRAFT = 'draft';
 

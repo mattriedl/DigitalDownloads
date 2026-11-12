@@ -59,6 +59,7 @@ class Ad extends Model
     public static function pickFor(string $zoneKey, ?int $categoryId = null): ?self
     {
         $candidates = static::running()
+            ->with('zone')
             ->whereHas('zone', fn ($q) => $q->where('key', $zoneKey)->where('is_active', true))
             ->where(fn ($q) => $q->whereNull('category_id')->when($categoryId, fn ($q) => $q->orWhere('category_id', $categoryId)))
             ->get();

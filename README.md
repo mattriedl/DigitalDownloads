@@ -17,8 +17,8 @@ Stack: Laravel 13, PHP 8.3+ (server runs 8.5), MySQL 8, Blade + Tailwind, Vite.
 | 1 | Project setup, installer, multi-site deploy scripts | Done |
 | 2 | Database schema, models, defaults, demo content | Done |
 | 3 | Admin panel (Filament, at /admin) | Done |
-| 4 | Public front end (dark, ad-heavy theme) | Next |
-| 5 | Accounts and downloads (countdown page, dead-link checker) | |
+| 4 | Public front end (dark, ad-heavy theme, countdown download page) | Done |
+| 5 | Accounts, hosted downloads, dead-link checker | Next |
 | 6 | Advertising | |
 | 7 | Engagement and support | |
 | 8 | SEO and performance | |
