@@ -24,6 +24,9 @@ class Item extends Model
 
     public const STATUS_DRAFT = 'draft';
 
+    /** InnoDB's default full-text stopwords (3+ letters): never indexed, so they can't be required. */
+    private const FULLTEXT_STOPWORDS = ['about', 'are', 'com', 'for', 'from', 'how', 'that', 'the', 'this', 'was', 'what', 'when', 'where', 'who', 'will', 'with', 'und', 'www'];
+
     public const STATUS_PUBLISHED = 'published';
 
     public const STATUS_SCHEDULED = 'scheduled';
@@ -156,8 +159,19 @@ class Item extends Model
         }
 
         if (DB::getDriverName() === 'mysql') {
-            return $query->whereFullText(['title', 'short_description', 'publisher'], $term);
+            // Boolean mode: every word must appear, and partial words match ("photosh" finds Photoshop).
+            // Operators typed by visitors are stripped; words under 3 letters aren't in the index.
+            $words = collect(preg_split('/[^\pL\pN]+/u', mb_strtolower($term), -1, PREG_SPLIT_NO_EMPTY))
+                ->filter(fn ($w) => mb_strlen($w) >= 3 && ! in_array($w, self::FULLTEXT_STOPWORDS, true))
+                ->take(8);
+
+            if ($words->isNotEmpty()) {
+                return $query->whereFullText(['title', 'short_description', 'publisher'],
+                    $words->map(fn ($w) => '+'.$w.'*')->implode(' '), ['mode' => 'boolean']);
+            }
         }
+
+        $term = addcslashes($term, '%_\\');
 
         return $query->where(function (Builder $q) use ($term) {
             $q->where('title', 'like', "%{$term}%")
