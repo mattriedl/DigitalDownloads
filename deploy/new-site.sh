@@ -28,6 +28,8 @@ for ext in mbstring xml curl pdo_mysql zip intl gd bcmath fileinfo; do
 done
 command -v node >/dev/null || die "Node.js is not installed."
 command -v mysql >/dev/null || die "MySQL client is not installed."
+command -v clamdscan >/dev/null || command -v clamscan >/dev/null \
+    || log "WARNING: ClamAV is not installed, so files uploaded to the site will not be virus-scanned. Install with: apt install clamav clamav-daemon"
 
 if ! command -v composer >/dev/null; then
     log "Installing Composer (checksum verified)"

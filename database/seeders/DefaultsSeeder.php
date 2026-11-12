@@ -118,6 +118,8 @@ class DefaultsSeeder extends Seeder
                 'head_code' => null,
                 'body_end_code' => null,
                 'custom_css' => null,
+                'google_login_enabled' => false,
+                'google_client_id' => null,
             ],
             'notifications' => [
                 'mail_from_name' => null,
@@ -143,7 +145,7 @@ class DefaultsSeeder extends Seeder
         }
 
         // Secret keys are stored encrypted.
-        foreach (['captcha_secret_key', 'sms_api_key'] as $key) {
+        foreach (['captcha_secret_key', 'sms_api_key', 'google_client_secret'] as $key) {
             if (! $existing->has($key)) {
                 $settings->set($key, null, 'integrations', encrypted: true);
             }
@@ -180,6 +182,7 @@ class DefaultsSeeder extends Seeder
             ['admin_new_report', 'Admin: new report', 'New {{type}} report on {{item_title}}', "A visitor reported \"{{item_title}}\" ({{type}}):\n\n{{message}}\n\n{{admin_url}}", ['type', 'item_title', 'message', 'admin_url']],
             ['admin_contact_message', 'Admin: contact form message', 'Contact form: {{subject}}', "From {{name}} <{{email}}>:\n\n{{message}}", ['name', 'email', 'subject', 'message']],
             ['admin_broken_links', 'Admin: broken links found', '{{count}} broken download links', "The nightly link check flagged {{count}} links as broken.\n\n{{admin_url}}", ['count', 'admin_url']],
+            ['admin_infected_file', 'Admin: infected upload removed', 'Virus found in a file for {{item_title}}', "The virus scan found {{virus}} in {{file}} for \"{{item_title}}\". The file was deleted and the download link switched off.\n\n{{admin_url}}", ['item_title', 'file', 'virus', 'admin_url']],
             ['subscription_started', 'Membership started', 'Your {{plan}} membership is active', "Hi {{name}},\n\nYour {{plan}} membership is active. Enjoy ad-free downloads.\n\nNext billing date: {{renews_at}}", ['name', 'plan', 'renews_at']],
             ['subscription_canceled', 'Membership canceled', 'Your {{plan}} membership was canceled', "Hi {{name}},\n\nYour {{plan}} membership was canceled. Member perks stay on until {{ends_at}}.", ['name', 'plan', 'ends_at']],
             ['payment_receipt', 'Payment receipt', 'Receipt for {{amount}}', "Hi {{name}},\n\nWe received your payment of {{amount}} for {{plan}} on {{date}}.\n\nReference: {{reference}}", ['name', 'amount', 'plan', 'date', 'reference']],

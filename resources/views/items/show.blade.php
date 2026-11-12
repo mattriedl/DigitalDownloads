@@ -95,6 +95,16 @@
                         </ul>
                     </details>
                 @endif
+                @auth
+                    <form method="post" action="{{ route('items.favorite', $item) }}">
+                        @csrf
+                        <button class="btn-quiet" aria-pressed="{{ $isSaved ? 'true' : 'false' }}">
+                            <x-ui-icon name="star" class="size-4 {{ $isSaved ? 'fill-current text-star' : '' }}"/> {{ $isSaved ? 'Saved' : 'Save' }}
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="btn-quiet"><x-ui-icon name="star" class="size-4"/> Save</a>
+                @endauth
                 <span class="flex items-center gap-1.5 text-xs text-muted sm:ml-auto"><x-ui-icon name="shield" class="size-4"/>Links checked daily</span>
             </div>
         </header>
@@ -196,13 +206,21 @@
                     <p class="mt-1 text-xs text-muted">{{ $review->user?->name ?? 'Former member' }}, {{ $review->created_at->format('M j, Y') }}</p>
                 </article>
             @empty
-                <p class="text-sm text-muted">No reviews yet.</p>
+                <p class="text-sm text-muted">No reviews yet. Be the first to say how it worked for you.</p>
             @endforelse
+
+            @if (setting('reviews_enabled', true))
+                @include('items._review-form')
+            @endif
         </section>
 
-        @if ($item->allow_comments && setting('comments_enabled', true) && $item->comments->isNotEmpty())
-            <section class="mt-8" aria-labelledby="comments">
-                <h2 id="comments" class="section-title mb-3">Comments</h2>
+        @if ($item->allow_comments && setting('comments_enabled', true))
+            <section class="mt-8" id="comments" aria-labelledby="comments-title">
+                <h2 id="comments-title" class="section-title mb-3">Comments</h2>
+                @include('items._comment-form')
+                @if ($item->comments->isEmpty())
+                    <p class="mt-3 text-sm text-muted">No comments yet.</p>
+                @endif
                 @foreach ($item->comments as $comment)
                     <article class="border-t border-rule py-4">
                         <p class="text-sm font-semibold">{{ $comment->user?->name ?? 'Former member' }} <span class="font-normal text-muted">{{ $comment->created_at->diffForHumans() }}</span></p>

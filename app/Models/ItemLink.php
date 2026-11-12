@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\ScanHostedFile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,7 +19,27 @@ class ItemLink extends Model
     /** Consecutive failed checks before a link is flagged broken. */
     public const BROKEN_AFTER_FAILURES = 3;
 
-    protected $guarded = ['id', 'click_count'];
+    protected $guarded = ['id', 'click_count', 'scan_status', 'scan_result', 'scanned_at'];
+
+    protected static function booted(): void
+    {
+        // A new or replaced hosted file waits for its virus scan before anyone can download it.
+        static::saving(function (ItemLink $link) {
+            if ($link->type === self::TYPE_HOSTED && $link->file_path && $link->isDirty(['file_path', 'type'])) {
+                $link->scan_status = 'pending';
+                $link->scan_result = null;
+                $link->scanned_at = null;
+            } elseif ($link->type !== self::TYPE_HOSTED) {
+                $link->scan_status = null;
+            }
+        });
+
+        static::saved(function (ItemLink $link) {
+            if ($link->scan_status === 'pending' && ($link->wasRecentlyCreated || $link->wasChanged(['file_path', 'type', 'scan_status']))) {
+                ScanHostedFile::dispatch($link->id)->afterCommit();
+            }
+        });
+    }
 
     protected function casts(): array
     {
@@ -26,6 +47,7 @@ class ItemLink extends Model
             'is_active' => 'boolean',
             'is_broken' => 'boolean',
             'last_checked_at' => 'datetime',
+            'scanned_at' => 'datetime',
         ];
     }
 
@@ -37,6 +59,12 @@ class ItemLink extends Model
     public function isExternal(): bool
     {
         return $this->type === self::TYPE_EXTERNAL;
+    }
+
+    /** Hosted files can be downloaded once the scan passed (or no scanner is installed). */
+    public function isSafeToServe(): bool
+    {
+        return $this->type !== self::TYPE_HOSTED || in_array($this->scan_status, ['clean', 'unscanned'], true);
     }
 
     /** Record the result of a dead-link check. */

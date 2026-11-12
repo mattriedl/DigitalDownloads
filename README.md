@@ -18,8 +18,8 @@ Stack: Laravel 13, PHP 8.3+ (server runs 8.5), MySQL 8, Blade + Tailwind, Vite.
 | 2 | Database schema, models, defaults, demo content | Done |
 | 3 | Admin panel (Filament, at /admin) | Done |
 | 4 | Public front end (dark, ad-heavy theme, countdown download page) | Done |
-| 5 | Accounts, hosted downloads, dead-link checker | Next |
-| 6 | Advertising | |
+| 5 | Accounts, Google sign-in, reviews/comments, dead-link checker, virus scanning | Done |
+| 6 | Advertising polish (ad stats, consent) | Next |
 | 7 | Engagement and support | |
 | 8 | SEO and performance | |
 | 9 | Testing, hardening, launch | |
@@ -40,6 +40,15 @@ and registers the domain in `/etc/digitaldownloads/sites`. Then:
 
 1. Point DNS at the server (Cloudflare) and issue SSL with certbot.
 2. Run the installer: `cd /var/www/<domain>/app && sudo -u www-data php artisan site:install`
+
+## Server requirements per site
+
+- PHP 8.3+ with mbstring, xml, curl, mysql, zip, intl, gd, bcmath; MySQL 8; Node 22; Apache with mod_rewrite.
+- ClamAV for virus-scanning files uploaded to the site: `apt install clamav clamav-daemon`
+  (without it, hosted files are marked "unscanned" and still served).
+- Outgoing email: set `MAIL_*` in each site's `.env` (e.g. Amazon SES or Postmark SMTP).
+- Google sign-in: Admin → Site settings → Integrations, with redirect URL `https://<domain>/auth/google/callback`.
+- Scheduled jobs run from the per-site cron (`schedule:run`): nightly dead-link check at 02:15.
 
 ## Deploying updates
 

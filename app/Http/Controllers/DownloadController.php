@@ -52,15 +52,18 @@ class DownloadController extends Controller
     {
         abort_unless($item->isPublished() && $link->item_id === $item->id && $link->is_active, 404);
 
-        $this->record($request, $item, $link);
-
         if ($link->type === ItemLink::TYPE_HOSTED) {
             abort_unless($link->file_path && Storage::disk('local')->exists($link->file_path), 404);
+            abort_unless($link->isSafeToServe(), 503, 'This file is still being checked for viruses. Please try again in a few minutes.');
+
+            $this->record($request, $item, $link);
 
             return Storage::disk('local')->download($link->file_path);
         }
 
         abort_unless(filter_var($link->url, FILTER_VALIDATE_URL) && preg_match('#^https?://#i', $link->url), 404);
+
+        $this->record($request, $item, $link);
 
         return redirect()->away($link->url);
     }

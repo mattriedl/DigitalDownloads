@@ -85,6 +85,18 @@
                    class="rounded px-3 py-2 text-sm font-medium text-muted hover:text-ink {{ url($link->url) === url()->current() ? 'text-ink' : '' }}">{{ $link->label }}</a>
             @endforeach
         </nav>
+
+        <div class="ml-auto flex shrink-0 items-center gap-2 lg:ml-2">
+            @auth
+                <a href="{{ route('account') }}" class="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium hover:bg-raised" title="My account">
+                    <span class="grid size-8 place-items-center rounded-full bg-raised font-display font-bold text-brand">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
+                    <span class="hidden xl:inline">{{ \Illuminate\Support\Str::limit(auth()->user()->name, 14) }}</span>
+                </a>
+                <form method="post" action="{{ route('logout') }}" class="hidden sm:block">@csrf<button class="text-sm text-muted hover:text-ink">Sign out</button></form>
+            @else
+                <a href="{{ route('login') }}" class="rounded-md border border-rule px-3 py-1.5 text-sm font-medium hover:border-brand">Sign in</a>
+            @endauth
+        </div>
     </div>
 
     <form action="{{ route('search') }}" method="get" role="search" class="px-4 pb-3 md:hidden">
@@ -96,6 +108,9 @@
         @foreach ($nav->menu('header') as $link)
             <a href="{{ $link->url }}" class="block py-2 font-medium">{{ $link->label }}</a>
         @endforeach
+        @auth
+            <form method="post" action="{{ route('logout') }}">@csrf<button class="py-2 font-medium text-muted">Sign out</button></form>
+        @endauth
     </nav>
 
     {{-- Category strip: the catalog's top level, always one tap away --}}
@@ -122,9 +137,10 @@
                 <x-ad-slot zone="sidebar_top" :category="$category"/>
                 {{ $aside ?? '' }}
                 @include('partials.sidebar-popular')
-                <x-ad-slot zone="sidebar_middle" :category="$category" class="lg:sticky lg:top-4"/>
-                @include('partials.sidebar-categories')
                 <x-ad-slot zone="sidebar_bottom" :category="$category"/>
+                @include('partials.sidebar-categories')
+                {{-- Last in the column so it can stay in view while scrolling without covering anything --}}
+                <x-ad-slot zone="sidebar_middle" :category="$category" class="lg:sticky lg:top-4"/>
             </aside>
         </div>
     @else

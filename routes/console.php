@@ -1,8 +1,12 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+// Each site's cron runs `php artisan schedule:run` every minute (set up by deploy/new-site.sh).
+
+// Nightly dead-link check; emails the admin when links newly break.
+Schedule::command('links:check')->dailyAt('02:15')->withoutOverlapping(120)->runInBackground();
+
+// Housekeeping
+Schedule::command('queue:prune-failed --hours=168')->daily();
+Schedule::command('auth:clear-resets')->daily();

@@ -17,6 +17,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
@@ -87,6 +88,25 @@ class ItemForm
                                         ->maxSize(512 * 1024)
                                         ->required(fn (Get $get) => $get('type') === ItemLink::TYPE_HOSTED)
                                         ->visible(fn (Get $get) => $get('type') === ItemLink::TYPE_HOSTED)
+                                        ->columnSpanFull(),
+                                    Text::make(fn (?ItemLink $record) => match ($record?->scan_status) {
+                                        'clean' => 'Virus scan: clean',
+                                        'infected' => 'Virus scan: infected ('.$record->scan_result.'). The file was deleted.',
+                                        'pending' => 'Virus scan: waiting. Visitors can download it once the scan passes.',
+                                        'unscanned' => 'Virus scan: not available (ClamAV is not installed on the server).',
+                                        'error' => 'Virus scan failed: '.$record->scan_result,
+                                        default => 'New files are scanned for viruses after you save.',
+                                    })
+                                        ->color(fn (?ItemLink $record) => match ($record?->scan_status) {
+                                            'clean' => 'success', 'infected', 'error' => 'danger', 'pending' => 'warning', default => 'gray',
+                                        })
+                                        ->visible(fn (Get $get) => $get('type') === ItemLink::TYPE_HOSTED)
+                                        ->columnSpanFull(),
+                                    Text::make(fn (?ItemLink $record) => $record?->last_checked_at
+                                        ? ($record->is_broken ? 'Broken: ' : 'Last check: ').($record->last_status_code ? 'HTTP '.$record->last_status_code : 'no response').', '.$record->last_checked_at->diffForHumans()
+                                        : null)
+                                        ->color(fn (?ItemLink $record) => $record?->is_broken ? 'danger' : 'gray')
+                                        ->visible(fn (Get $get, ?ItemLink $record) => $get('type') === ItemLink::TYPE_EXTERNAL && $record?->last_checked_at)
                                         ->columnSpanFull(),
                                 ]),
                         ]),

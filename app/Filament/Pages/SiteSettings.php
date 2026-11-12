@@ -56,12 +56,12 @@ class SiteSettings extends Page
         'seo' => ['seo_home_title', 'seo_home_description', 'seo_title_suffix', 'og_image', 'google_analytics_id', 'google_site_verification', 'bing_site_verification', 'robots_txt_extra'],
         'ads' => ['ads_enabled', 'countdown_enabled', 'countdown_seconds', 'adsense_publisher_id', 'ads_txt', 'consent_banner_enabled', 'consent_cmp_code'],
         'community' => ['reviews_enabled', 'reviews_require_approval', 'comments_enabled', 'comments_require_approval'],
-        'integrations' => ['captcha_provider', 'captcha_site_key', 'captcha_secret_key', 'live_chat_code', 'head_code', 'body_end_code', 'custom_css'],
+        'integrations' => ['google_login_enabled', 'google_client_id', 'google_client_secret', 'captcha_provider', 'captcha_site_key', 'captcha_secret_key', 'live_chat_code', 'head_code', 'body_end_code', 'custom_css'],
         'notifications' => ['mail_from_name', 'mail_from_address', 'admin_notify_email', 'sms_provider', 'sms_api_key'],
         'payments' => ['memberships_enabled', 'currency'],
     ];
 
-    private const ENCRYPTED = ['captcha_secret_key', 'sms_api_key'];
+    private const ENCRYPTED = ['captcha_secret_key', 'sms_api_key', 'google_client_secret'];
 
     public ?array $data = [];
 
@@ -151,6 +151,14 @@ class SiteSettings extends Page
                     ]),
                 ]),
                 Tab::make('Integrations')->icon(Heroicon::OutlinedPuzzlePiece)->schema([
+                    Section::make('Sign in with Google')->columns(3)
+                        ->description(fn () => 'Create an OAuth client in Google Cloud Console and add this redirect URL: '.url('/auth/google/callback'))
+                        ->schema([
+                            Toggle::make('google_login_enabled')->label('Show "Continue with Google"')->columnSpanFull(),
+                            TextInput::make('google_client_id')->label('Client ID')->columnSpan(2),
+                            TextInput::make('google_client_secret')->label('Client secret')->password()->revealable()
+                                ->placeholder(fn () => setting('google_client_secret') ? 'Saved (leave blank to keep)' : null),
+                        ]),
                     Section::make('Spam protection')->columns(3)->schema([
                         Select::make('captcha_provider')->options(['turnstile' => 'Cloudflare Turnstile', 'recaptcha' => 'Google reCAPTCHA', 'none' => 'None']),
                         TextInput::make('captcha_site_key'),

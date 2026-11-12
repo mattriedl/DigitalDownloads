@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\Report;
+use App\Support\Notifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -30,7 +31,14 @@ class ReportController extends Controller
             'email.required' => 'Copyright notices need an email address so we can reply.',
         ]);
 
-        Report::create($data + ['item_id' => $item->id, 'user_id' => $request->user()?->id]);
+        $report = Report::create($data + ['item_id' => $item->id, 'user_id' => $request->user()?->id]);
+
+        Notifier::admin('admin_new_report', [
+            'type' => str_replace('_', ' ', $report->type),
+            'item_title' => $item->title,
+            'message' => $report->message,
+            'admin_url' => url('/admin/reports/'.$report->id),
+        ]);
 
         return redirect()->to(route('items.show', $item).'#report')
             ->with('status', 'Thanks, we received your report and will look at it soon.');

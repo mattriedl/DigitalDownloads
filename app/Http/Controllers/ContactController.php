@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ContactMessage;
 use App\Models\Download;
+use App\Support\Notifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -30,6 +31,8 @@ class ContactController extends Controller
         ]);
 
         ContactMessage::create($data + ['ip_hash' => Download::hashIp($request->ip())]);
+
+        Notifier::admin('admin_contact_message', ['subject' => ($data['subject'] ?? null) ?: '(no subject)'] + $data);
 
         return redirect()->route('contact')->with('status', 'Thanks, your message was sent. We usually reply within two business days.');
     }

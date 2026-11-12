@@ -35,8 +35,12 @@ class ItemController extends Controller
             ->whereKeyNot($item->id)
             ->popular()->take(6)->get();
 
+        $user = $request->user();
+
         return view('items.show', [
             'item' => $item,
+            'isSaved' => $user ? $user->favorites()->whereKey($item->id)->exists() : false,
+            'myReview' => $user ? $item->reviews()->where('user_id', $user->id)->first() : null,
             'related' => $related,
             'reportTypes' => collect(Report::TYPES)->mapWithKeys(fn ($t) => [$t => match ($t) {
                 'broken_link' => 'Download link does not work',

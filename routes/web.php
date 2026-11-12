@@ -1,12 +1,15 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BrowseController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\FallbackController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PageController;
@@ -31,6 +34,22 @@ Route::get('/download/{item:slug}/go/{link}', [DownloadController::class, 'go'])
     ->middleware(['signed', 'throttle:30,1'])->name('items.go');
 Route::post('/download/{item:slug}/report', [ReportController::class, 'store'])
     ->middleware('throttle:5,10')->name('items.report');
+
+// Accounts (sign-in, sign-up and password pages come from Fortify)
+Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
+
+Route::middleware('auth')->group(function () {
+    Route::get('/account', [AccountController::class, 'show'])->name('account');
+    Route::get('/account/settings', [AccountController::class, 'settings'])->name('account.settings');
+    Route::delete('/account', [AccountController::class, 'destroy'])->name('account.destroy');
+    Route::post('/download/{item:slug}/save', [AccountController::class, 'toggleFavorite'])->name('items.favorite');
+
+    Route::middleware(['verified', 'throttle:10,10'])->group(function () {
+        Route::post('/download/{item:slug}/review', [FeedbackController::class, 'review'])->name('items.review');
+        Route::post('/download/{item:slug}/comment', [FeedbackController::class, 'comment'])->name('items.comment');
+    });
+});
 
 // Content
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
